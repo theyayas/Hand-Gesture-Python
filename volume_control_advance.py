@@ -29,16 +29,21 @@ detector = htm.handDetector()
 cap.set(3, wCam)
 cap.set(4, hCam)
 pTime = 0
+area = 0
 
 while True:
     success, img = cap.read()
     img = detector.findHands(img)
-    lmlist = detector.findPosition(img, draw = False)
+    lmlist, bbox = detector.findPosition(img, draw = False)
 
     if (len(lmlist) != 0):
         #print(lmlist[4], lmlist[8])
 
         # filter berdasarkan ukuran
+        area = (bbox[2]-bbox[0])*(bbox[3]-bbox[1])
+        cv2.rectangle(img, (bbox[0]-20, bbox[1]-20), 
+                              (bbox[2]+20, bbox[3]+20), (0, 255, 0), 2)
+        print(area)
 
         # mencari jarak antara ujung jempol dan telunjuk
 
@@ -72,7 +77,7 @@ while True:
         # volume range  : -63.5 - 0.0
         # CONVERT HAND RANGE TO VOLUME RANGE
         vol = np.interp(length, [50, 300], [minVol, maxVol])
-        print(vol)
+        #print(vol)
         volume.SetMasterVolumeLevel(vol, None)
 
 

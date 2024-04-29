@@ -26,22 +26,40 @@ class handDetector():
         return img
     
     def findPosition(self, img, handNo = 0, draw = True):
+        xlist = []
+        ylist = [] 
+        bbox = []
+        
         lmList = []
-
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(myHand.landmark):
                 #print(id, lm)
                 height, width, channel = img.shape
                 cx, cy = int(lm.x*width), int(lm.y*height)
+                xlist.append(cx)
+                ylist.append(cy)
+
                 lmList.append([id, cx, cy])
                 #print(id, cx, cy)
                 if draw:
+                    cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
+                    '''
                     if (id == 4):
                         cv2.circle(img, (cx, cy), 10, (255, 0, 255), cv2.FILLED)
                     elif (id == 8):
                         cv2.circle(img, (cx, cy), 10, (255, 0, 255), cv2.FILLED)
-        return lmList
+                    '''
+            
+            xmin, xmax = min(xlist), max(xlist)
+            ymin, ymax = min(ylist), max(ylist)
+            bbox = xmin, ymin, xmax, ymax
+
+            if draw:
+                cv2.rectangle(img, (bbox[0]-20, bbox[1]-20), 
+                              (bbox[2]+20, bbox[3]+20), (0, 255, 0), 2)
+
+        return lmList, bbox
 
     
 def main():
@@ -55,8 +73,8 @@ def main():
         img = detector.findHands(img)
         lmlist = detector.findPosition(img)
 
-        if (len(lmlist) != 0):
-            print(lmlist[4], lmlist[8])
+        #if (len(lmlist) != 0):
+            #print(lmlist[4], lmlist[8])
  
         # MENCARI FRAME RATE
         cTime = time.time()
